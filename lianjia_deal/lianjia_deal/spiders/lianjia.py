@@ -27,7 +27,7 @@ class lianjia(scrapy.Spider):
             totalPage = int(re.findall(r'"totalPage":(\d+)', page_url)[0])
             curPage = int(re.findall(r'"curPage":(\d+)', page_url)[0])
 
-            if curPage+1 < totalPage:
+            if curPage+1 <= totalPage:
                 index = self.start_urls[0].find('rs')
                 nextPage = self.start_urls[0][:index]+'pg'+str(curPage+1)+self.start_urls[0][index:]
 
