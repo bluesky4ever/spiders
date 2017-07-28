@@ -8,6 +8,7 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+import os
 
 BOT_NAME = 'lianjia_deal'
 
@@ -52,9 +53,15 @@ DOWNLOAD_DELAY = 3
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+DOWNLOADER_MIDDLEWARES = {
 #    'lianjia_deal.middlewares.MyCustomDownloaderMiddleware': 543,
-#}
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware' : None,
+    # pip install scrapy-random-useragent
+    # See https://github.com/cnu/scrapy-random-useragent
+    'random_useragent.RandomUserAgentMiddleware': 400
+}
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+USER_AGENT_LIST = PROJECT_ROOT + "/user-agents.txt"
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html
