@@ -17,7 +17,7 @@ class LianjiaDealPipeline(object):
 
     def close_spider(self, spider):
         self.line.add(spider.community[0], self.x_axis, self.points)
-        self.line.show_config()
+    #    self.line.show_config()
         self.line.render(spider.community[0] + '.html')
 
     def process_item(self, item, spider):
