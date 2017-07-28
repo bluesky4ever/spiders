@@ -8,15 +8,21 @@ from lianjia_deal.items import LianjiaDealItem
 class lianjia(scrapy.Spider):
     name = "deal"
     allowed_domains = ['lianjia.com']
+    community = []
 
     def __init__(self, community='', *args, **kwargs):
         super(lianjia, self).__init__(*args, **kwargs)
-        self.start_urls = [
-            'https://cd.lianjia.com/chengjiao/rs%s/' % community
-        ]
+        try:
+            self.community = community.split(',')
+        except:
+            self.community.append(community)
+
+        for c in self.community:
+            self.start_urls.append('https://cd.lianjia.com/chengjiao/rs%s/' % c)
 
     def start_requests(self):
-        yield scrapy.Request(self.start_urls[0], callback=self.parse)
+        for url in self.start_urls:
+            yield scrapy.Request(url, callback=self.parse)
 
     def find_next_page(self, response):
         nextPage = None
@@ -41,6 +47,11 @@ class lianjia(scrapy.Spider):
     def parse(self, response):
         allInfo = response.xpath('//div[@class="info"]')
         for info in allInfo:
+            positionInfo = info.css('div.positionInfo::text').extract()[0]
+            if positionInfo.find('地下室') >= 0:
+                # do not count 地下室 since the price is not the same as house
+                continue
+
             totalPrice, unitPrice = info.css('span.number::text').extract()
             dealDate = info.css('div.dealDate::text').extract()[0]
 
