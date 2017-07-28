@@ -5,22 +5,29 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
-from pyecharts import Line
+import lianjia_deal.myutils.draw as mydraw
+import lianjia_deal.myutils.dumpjs as mydumpjs
 
 class LianjiaDealPipeline(object):
     line = None
-    x_axis = []
-    points = []
+    item_collection = []
+
+    fp = None
+    json_file = ''
 
     def open_spider(self, spider):
-        self.line = Line(spider.community[0])
+        pass
+
 
     def close_spider(self, spider):
-        self.line.add(spider.community[0], self.x_axis, self.points)
-    #    self.line.show_config()
-        self.line.render(spider.community[0] + '.html')
+        draw = mydraw.Draw(self.item_collection)
+        draw.draw_line(spider.community[0])
+
+        js = mydumpjs.DumpJs(self.item_collection, spider.community[0], '.')
+        js.dump_to_js()
 
     def process_item(self, item, spider):
-        self.x_axis.append(item['dealDate'][0])
-        self.points.append(item['unitPrice'][0])
+
+        self.item_collection.append(item)
+
         return item

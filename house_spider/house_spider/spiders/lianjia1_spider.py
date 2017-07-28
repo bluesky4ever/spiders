@@ -38,7 +38,7 @@ class lianjiaSpider(scrapy.Spider):
             self.logger.error("EXCEPTION at line: " + str(exc_tb.tb_lineno) +", " + str(ex))
             pass
 
-        return None
+        return nextPage
 
       #  if self.iteration < 1:
       #      return nextPage
