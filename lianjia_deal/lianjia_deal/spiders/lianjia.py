@@ -1,6 +1,7 @@
 import sys
 import re
 import scrapy
+import numpy
 
 from scrapy.loader import ItemLoader
 from lianjia_deal.items import LianjiaDealItem
@@ -8,17 +9,16 @@ from lianjia_deal.items import LianjiaDealItem
 class lianjia(scrapy.Spider):
     name = "deal"
     allowed_domains = ['lianjia.com']
-    community = []
+    community = None
 
     def __init__(self, community='', *args, **kwargs):
         super(lianjia, self).__init__(*args, **kwargs)
-        try:
-            self.community = community.split(',')
-        except:
-            self.community.append(community)
+        self.community = community
 
-        for c in self.community:
-            self.start_urls.append('https://cd.lianjia.com/chengjiao/rs%s/' % c)
+        if self.community == '':
+            self.start_urls.append('https://cd.lianjia.com/chengjiao/')
+        else:
+            self.start_urls.append('https://cd.lianjia.com/chengjiao/rs%s/' % self.community)
 
     def start_requests(self):
         for url in self.start_urls:
@@ -35,7 +35,10 @@ class lianjia(scrapy.Spider):
 
             if curPage+1 <= totalPage:
                 index = self.start_urls[0].find('rs')
-                nextPage = self.start_urls[0][:index]+'pg'+str(curPage+1)+self.start_urls[0][index:]
+                if index >=0:
+                    nextPage = self.start_urls[0][:index]+'pg'+str(curPage+1)+self.start_urls[0][index:]
+                else:
+                    nextPage = self.start_urls[0]+'pg'+str(curPage+1)
 
         except Exception as ex:
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -45,15 +48,25 @@ class lianjia(scrapy.Spider):
         return nextPage
 
     def parse(self, response):
+        unitPriceCollection = []
+        unitPriceMean = 0
         allInfo = response.xpath('//div[@class="info"]')
         for info in allInfo:
-            positionInfo = info.css('div.positionInfo::text').extract()[0]
-            if positionInfo.find('地下室') >= 0:
-                # do not count 地下室 since the price is not the same as house
+            try:
+                totalPrice, unitPrice = info.css('span.number::text').extract()
+                dealDate = info.css('div.dealDate::text').extract()[0]
+            except Exception as ex:
+                print(str(ex))
                 continue
 
-            totalPrice, unitPrice = info.css('span.number::text').extract()
-            dealDate = info.css('div.dealDate::text').extract()[0]
+            if unitPriceMean == 0:
+                unitPriceMean = int(unitPrice) 
+
+            if int(unitPrice) > 2*unitPriceMean or int(unitPrice) < unitPriceMean/2:
+                continue
+
+            unitPriceCollection.append(int(unitPrice))
+            unitPriceMean = numpy.mean(unitPriceCollection)
 
             dealItem = LianjiaDealItem()
             loader = ItemLoader(item=dealItem, response = response)

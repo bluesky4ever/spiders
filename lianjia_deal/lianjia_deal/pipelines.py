@@ -21,9 +21,9 @@ class LianjiaDealPipeline(object):
 
     def close_spider(self, spider):
         draw = mydraw.Draw(self.item_collection)
-        draw.draw_line(spider.community[0])
+        draw.draw_line(spider.community)
 
-        js = mydumpjs.DumpJs(self.item_collection, spider.community[0], '.')
+        js = mydumpjs.DumpJs(self.item_collection, spider.community, '.')
         js.dump_to_js()
 
     def process_item(self, item, spider):
