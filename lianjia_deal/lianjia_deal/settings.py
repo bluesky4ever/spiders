@@ -58,7 +58,9 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware' : None,
     # pip install scrapy-random-useragent
     # See https://github.com/cnu/scrapy-random-useragent
-    'random_useragent.RandomUserAgentMiddleware': 400
+    'random_useragent.RandomUserAgentMiddleware': 500,
+
+    'lianjia_deal.downloadmiddlewares.zscalertwogateway.zscalertwoGateway': 543
 }
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 USER_AGENT_LIST = PROJECT_ROOT + "/user-agents.txt"
